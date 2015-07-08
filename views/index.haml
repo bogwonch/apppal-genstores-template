@@ -1,0 +1,36 @@
+!!!
+%html{lang: 'en'}
+  %head
+    %meta{charset: 'utf-8'}
+    %meta{name: 'viewport', content: 'width=device-width, initial-scale=1'}
+    %title= store.name
+    %link{href: '/bower_components/bootstrap/dist/css/bootstrap.css', rel: 'stylesheet'}
+    -# %script{src: '/bower_components/jquery/dist/jquery.js'}
+    %script{src: '/bower_components/masonry/dist/masonry.pkgd.js'}
+    :sass
+      .grid-item
+        width: 200px
+        height: 200px
+
+      .grid
+        img
+          width: 100%
+          max-width: 200px
+
+  %body
+    .page-header
+      %h1= store.name
+      %p
+        store description
+
+    %nav.navbar.navbar_default
+      .container-fluid
+        %a.navbar-brand{href: '#'}
+          Categories
+        %ul.nav.navbar-nav
+          = store.navbar
+
+    .grid.js-masonry
+      = store.gridapps selection
+
+

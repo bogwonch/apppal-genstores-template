@@ -1,0 +1,86 @@
+#! /usr/bin/env ruby
+
+require 'tilt/haml'
+require 'tilt/sass'
+require 'sinatra'
+require 'sqlite3'
+require 'nokogiri'
+require 'open-uri/cached'
+
+set :haml, format: :html5
+
+class Store
+  attr_reader \
+    :apks,
+    :categories,
+    :categorizations,
+    :description,
+    :name
+
+  def initialize(db)
+    @DB = SQLite3::Database.new db
+
+    @name = 'The Store'
+    @description = 'an AppPAL curated store'
+
+    apks = @DB.execute <<-SQL
+      SELECT apk.id
+        FROM apk
+    SQL
+    @apks = apks.map {|apk| apk.first}
+
+    categories = @DB.execute <<-SQL
+      SELECT category.name
+        FROM category
+    SQL
+    @categories = categories.map {|category| category.first }
+
+    @categorizations = {}
+    @categories.each {|cat| @categorizations[cat] = []}
+    @DB.execute('SELECT apk, category FROM apk_category').each do |field|
+      apk, category = field
+      @categorizations[category] += [apk]
+    end
+  end
+
+  def navbar
+    @categories.map do |category|
+      <<-HTML
+        <li>
+          <a href='/?category=#{category}'>
+            #{category}
+          </a>
+        </li>
+      HTML
+    end .join
+  end
+
+  def gridButtonAPK(apk)
+    <<-HTML
+      <button class='grid-item btn btn-default'>
+        <a href='/apk/#{apk}.apk'>
+          <img src=/img/#{apk}.png />
+        </a>
+      </button>
+    HTML
+  end
+
+
+  def gridapps(which)
+    if which == :all
+      @apks
+    elsif @categories.include? which
+      @categorizations[which]
+    end .map {|apk| gridButtonAPK apk} .join
+  end
+end
+
+$STORE = Store.new 'store.db'
+
+get '/' do
+  choice = params['category'] || :all
+  haml :index,
+    locals: { store: $STORE, selection: choice}
+end
+
+
