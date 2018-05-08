@@ -58,8 +58,8 @@ class Store
   def gridButtonAPK(apk)
     <<-HTML
       <button class='grid-item btn btn-default'>
-        <a href='/apk/#{apk}.apk'>
-          <img src=/img/#{apk}.png />
+        <a href='/apks/#{apk}.apk'>
+          <img src=/icons/#{apk}.png />
         </a>
       </button>
     HTML
